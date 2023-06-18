@@ -21,6 +21,6 @@
     });
 
 
-    Route::get('verify', [Login::class, 'Verify']);
-    Route::get('register', [Login::class, 'RegisterUser']);
+    Route::post('verify', [Login::class, 'Verify']);
+    Route::post('register', [Login::class, 'RegisterUser']);
     Route::get('news/{source?}', [News::class, 'Index']);

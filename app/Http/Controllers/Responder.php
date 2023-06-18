@@ -12,7 +12,7 @@
         }
         public function NewsResponse( array $newsData ): array
         {
-            return $this->Refactor(['code','message','current','next','previous','articles'], $newsData);
+            return $this->Refactor(['code','message','current','nextpage','backpage','articles'], $newsData);
         }
         private function Refactor( array $fields, array $data): array
         {

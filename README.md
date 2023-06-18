@@ -1,66 +1,72 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+1. Create a Dockerfile: Create a file named Dockerfile (without any file extension) in the root directory of Laravel app. Open the file in a text editor and add the following content:
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+```
+Use an official PHP runtime as the base image
+FROM php:7.4-apache
 
-## About Laravel
+Set the working directory inside the container
+WORKDIR /var/www/html
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Install system dependencies
+RUN apt-get update && \
+    apt-get install -y \
+        libzip-dev \
+        zip \
+        unzip
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Install PHP extensions
+RUN docker-php-ext-install pdo_mysql zip
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Copy composer.lock and composer.json to the working directory
+COPY composer.lock composer.json ./
 
-## Learning Laravel
+Install app dependencies
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-scripts
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Copy the app's source code to the working directory
+COPY . .
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Generate the Laravel application key
+RUN php artisan key:generate
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Set the storage and cache directory permissions
+RUN chown -R www-data:www-data \
+    storage \
+    bootstrap/cache
 
-## Laravel Sponsors
+Expose port 80
+EXPOSE 80
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Specify the command to run app
+CMD ["apache2-foreground"]
+```
+2. Create a .dockerignore file: Create a file named .dockerignore in the root directory of Laravel app. Open the file in a text editor and add the following content:
 
-### Premium Partners
+```
+/vendor
+/node_modules
+/public
+```
+3. Build the Docker image: Open a terminal or command prompt and navigate to the root directory of Laravel app (where the Dockerfile is located). Run the following command to build the Docker image:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+>docker build -t news-app-laravel .
 
-## Contributing
+This command builds the Docker image using the Dockerfile and tags it with the name news-app-laravel. You can change the tag name to something else if desired.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. Run the Docker container: After the Docker image is built, you can run it as a container using the following command:
 
-## Code of Conduct
+>docker run -p 80:80 news-app-laravel
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5. Access the Laravel app: With the Docker container running, you can access Laravel app by opening a web browser and navigating to http://localhost. You should see Laravel app running inside the Docker container.
 
-## Security Vulnerabilities
+Done ...
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+
+
+

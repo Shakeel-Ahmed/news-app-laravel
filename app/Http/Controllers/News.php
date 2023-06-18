@@ -22,19 +22,19 @@
             if($validate === false) return $this->responder->message([401,'Error: Unauthorized request', '']);
 
             $search = request('search');
-            $page = request('page');
+            $page = request('page') ?? 1;
             $articles = [];
 
             switch ($source) {
                 case ('grd'):
                     {
-                        $newsData = json_decode( Http::get(GRD_CALL . '&q=' . $search), true );
+                        $newsData = json_decode( Http::get(GRD_CALL . '&q=' . $search . '&page=' . $page), true );
                         $articles = $this->ArticleMaker($newsData['response']['results'], 'grd');
                     }
                     break;
                 case ('nyt'):
                     {
-                        $newsData = json_decode( Http::get(NYT_CALL . '&q=' . $search), true );
+                        $newsData = json_decode( Http::get(NYT_CALL . '&q=' . $search . '&page=' . $page), true );
                         $articles = $this->ArticleMaker($newsData['response']['docs'], 'nyt');
                     }
                     break;
